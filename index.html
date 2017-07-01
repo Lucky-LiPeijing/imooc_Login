@@ -135,8 +135,8 @@
 </div>
 <div class="ui-mask" id="mask" onselectstart="return false"></div>
 
-<div class="ui-dialog" id="dialogMove" onselectstart='return false;'>
-    <div class="ui-dialog-title" id="dialogDrag" onselectstart="return false;">
+<div class="ui-dialog" id="dialog" onselectstart='return false;'>
+    <div class="ui-dialog-title" id="dialogTitle" onselectstart="return false;">
 
         登录通行证
 
@@ -161,5 +161,98 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    //获取元素对象
+    function g(id) {
+        return document.getElementById(id);
+    }
+
+    //自动居中元素（el = Element）
+    function autoCenter(el) {
+        var bodyW = document.documentElement.clientWidth;
+        var bodyH = document.documentElement.clientHeight;
+
+        var elW = el.offsetWidth;
+        var elH = el.offsetHeight;
+
+        el.style.left = (bodyW - elW) / 2 + 'px';
+        el.style.top = (bodyH - elH) / 2 + 'px';
+
+    }
+
+    //自动扩展元素到全部显示区域
+    function fillToBody(el) {
+        el.style.width = document.documentElement.clientWidth + 'px';
+        el.style.height = document.documentElement.clientHeight + 'px';
+    }
+
+    var mouseOffsetX = 0;       //偏移
+    var mouseOffsetY = 0;
+
+    var isDraging = false;
+
+    //鼠标事件1：在标题栏上按下（要计算鼠标相对拖拽元素的左上角的坐标，并标记元素为可拖拽
+    g('dialogTitle').addEventListener("mousedown", function (e) {
+        var e = e || window.event;
+        mouseOffsetX = e.pageX - g('dialog').offsetLeft;
+        mouseOffsetY = e.pageY - g('dialog').offsetTop;
+        isDraging = true;
+    })
+
+    //鼠标时间2：鼠标移动时（要检测，元素是否可以移动，如果可以改变位置
+    document.onmousemove = function (e) {
+        var e = e || window.event;
+        var mouseX = e.pageX;
+        var mouseY = e.pageY;
+
+        var moveX = 0;
+        var moveY = 0;
+
+        if (isDraging == true) {
+            moveX = mouseX - mouseOffsetX;
+            moveY = mouseY - mouseOffsetY;
+
+            var pageWith = document.documentElement.clientWidth;
+            var pageHeight = document.documentElement.clientHeight;
+
+            var dialogWith = g('dialog').offsetWidth;
+            var dialogHeight = g('dialog').offsetHeight;
+
+            var maxX = pageWith - dialogWith;
+            var maxY = pageHeight - dialogHeight;
+
+            moveX = Math.min(maxX, Math.max(0, moveX));
+            moveY = Math.min(maxY, Math.max(0, moveY));
+
+            g('dialog').style.left = moveX + 'px';
+            g('dialog').style.top = moveY + 'px';
+        }
+    }
+
+    //鼠标事件2：鼠标松开
+    document.onmouseup = function () {
+        isDraging = false;
+    }
+
+    //登陆按钮执行的操作
+    function showDialog() {
+        g('dialog').style.display = 'block';
+        g('mask').style.display = 'block';
+        autoCenter(g('dialog'));
+        fillToBody(g('mask'));
+    }
+
+    //关闭按钮执行的操作
+    function hideDialog() {
+        g('dialog').style.display = 'none';
+        g('mask').style.display = 'none';
+    }
+
+    //当页面大小变化是执行的操作
+    window.onresize = function () {
+        autoCenter(g('dialog'));
+        fillToBody(g('mask'));
+    }
+</script>
 </body>
 </html>
